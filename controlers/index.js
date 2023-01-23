@@ -1,8 +1,17 @@
 const { Contact } = require("../service/index");
 const { Error } = require("../middleWare/index");
 
+// Функції, що спрацьовують при запитах
+
 const getAll = async (req, res) => {
-  const result = await Contact.find({});
+  const { _id: owner } = req.user;
+  const { page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
+  const result = await Contact.find({ owner }, "-createdAt - updatedAt", {
+    skip,
+    limit,
+  }).populate("owner", "name email");
+  // const result = await Contact.find({});
 
   res.json({
     status: "done",
@@ -27,7 +36,9 @@ const getById = async (req, res) => {
 };
 
 const add = async (req, res) => {
-  const result = await Contact.create(req.body);
+  const { _id: owner } = req.user;
+  const result = await Contact.create({ ...req.body, owner });
+
   res.status(201).json({ status: "done", code: 201, data: { result } });
 };
 
