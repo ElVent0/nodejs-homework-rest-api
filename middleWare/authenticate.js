@@ -1,5 +1,6 @@
 const { Error } = require("../middleWare/index");
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 const { SECRET_KEY } = process.env;
 const { User } = require("../service/user");
 
