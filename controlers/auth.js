@@ -9,10 +9,8 @@ const path = require("path");
 const avatarDir = path.join(__dirname, "../../", "public", "avatars");
 const gravatar = require("gravatar");
 
-// Функції, що спрацьовують при авторизації
-
 const register = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, subscription } = req.body;
   const user = await User.findOne({ email });
   if (user) {
     throw new Error(409, "Email in use");
@@ -22,6 +20,7 @@ const register = async (req, res) => {
   const newUser = await User.create({
     ...req.body,
     password: hashPassword,
+    subscription,
     avatarURL,
   });
   const result = {
@@ -48,7 +47,8 @@ const login = async (req, res) => {
   const payload = {
     id: user._id,
   };
-  const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "23h" });
+  console.log(SECRET_KEY);
+  const token = jwt.sign(payload, SECRET_KEY);
   await User.findByIdAndUpdate(user._id, { token });
   const result = {
     name: user.name,

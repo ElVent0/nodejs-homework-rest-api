@@ -1,8 +1,8 @@
 const { Error } = require("../middleWare/index");
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 const { SECRET_KEY } = process.env;
 const { User } = require("../service/user");
-require("dotenv").config();
 
 const authenticate = async (req, res, next) => {
   const { authorization = "" } = req.headers;
@@ -13,11 +13,15 @@ const authenticate = async (req, res, next) => {
   }
 
   try {
-    const { id } = jwt.verify(token, SECRET_KEY);
-    const user = await User.findById(id);
+    console.log(SECRET_KEY);
+    const payload = jwt.verify(token, SECRET_KEY);
+    console.log(payload);
+    const user = await User.findById(payload.id);
+    console.log(user);
     if (!user || !user.token || token !== String(user.token)) {
       next(Error(401, "Email in use"));
     }
+
     req.user = user;
     next();
   } catch (e) {
