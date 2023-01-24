@@ -1,6 +1,3 @@
-// const multer = require("multer");
-// const path = require("path");
-
 const wrapper = (action) => {
   return async (req, res, next) => {
     try {
@@ -31,20 +28,8 @@ const Error = (status, message) => {
   console.log("Error");
 };
 
-// const multerConfig = multer.diskStorage({
-//   destination: path.join(__dirname, "../", "temp"),
-//   filename: (req, file, cb) => {
-//     cb(null, file.originalname);
-//   },
-// });
-
-// const upload = multer({
-//   storage: multerConfig,
-// });
-
 module.exports = {
   wrapper,
   validator,
   Error,
-  // upload,
 };
