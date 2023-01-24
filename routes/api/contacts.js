@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-
 const { wrapper, validator } = require("../../middleWare/index");
 const { authenticate } = require("../../middleWare/authenticate");
 const {
