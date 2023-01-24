@@ -16,13 +16,19 @@ const userSchema = new Schema({
     enum: ["starter", "pro", "business"],
     default: "starter",
   },
-  token: String,
+  avatarURL: {
+    type: String,
+    required: true,
+  },
+  token: {
+    type: String,
+  },
 });
 
 const registerSchema = Joi.object({
-  subscription: Joi.string().required(),
   email: Joi.string().required(),
   password: Joi.string().required(),
+  subscription: Joi.string(),
   //   email: Joi.string().pattern(регулярний вираз з шаблоном).required(),
 });
 
