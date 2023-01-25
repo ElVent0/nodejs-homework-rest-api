@@ -8,6 +8,10 @@ const fs = require("fs/promises");
 const path = require("path");
 const avatarDir = path.join(__dirname, "../../", "public", "avatars");
 const gravatar = require("gravatar");
+const sgMail = require("@sendgrid/mail");
+const { SENDGRID_API_KEY } = process.env;
+sgMail.setApiKey(SENDGRID_API_KEY);
+const { v4: uuidv4 } = require("uuid");
 
 const register = async (req, res) => {
   const { email, password, subscription } = req.body;
@@ -16,6 +20,18 @@ const register = async (req, res) => {
     throw new Error(409, "Email in use");
   }
   const hashPassword = await bcrypt.hash(password, 10);
+
+  const code = uuidv4();
+
+  const letter = {
+    to: email,
+    from: "conopo2104@ibansko.com",
+    subject: "verification",
+    html: `<a href="http://localhost:3000/api/users/verify/${code}">Click here to lose your money, hehe</a>`,
+  };
+
+  await sgMail.send(letter);
+
   const avatarURL = gravatar.url(email);
   const newUser = await User.create({
     ...req.body,
@@ -84,10 +100,53 @@ const updateAvatar = async (req, res) => {
   res.json({ imageUrl });
 };
 
+const verify = async (req, res) => {
+  const { code } = req.params;
+  const user = await User.findOne({ code });
+  if (!user) {
+    throw Error(404);
+  }
+  await User.findByIdAndUpdate(user._id, {
+    verify: true,
+    code: "",
+  });
+  res.json({ message: "Done" });
+};
+
+const verifyAgain = async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    throw new Error(401, `Error`);
+  }
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new Error(400, `Error`);
+  }
+  if (user.verify) {
+    throw new Error(400, "Error");
+  }
+
+  const letter = {
+    to: email,
+    from: "conopo2104@ibansko.com",
+    subject: "verification",
+    html: `<a href="http://localhost:3000/api/users/verify/${user.verificationToken}">Click here to lose your money</a>`,
+  };
+
+  await sgMail.send(letter);
+
+  res.json({
+    message: "Done",
+  });
+};
+
 module.exports = {
   register,
   login,
   getCurrent,
   logout,
   updateAvatar,
+  verify,
+  verifyAgain,
 };
