@@ -23,6 +23,13 @@ const userSchema = new Schema({
   token: {
     type: String,
   },
+  verify: {
+    type: Boolean,
+    default: false,
+  },
+  verificationToken: {
+    type: String,
+  },
 });
 
 const registerSchema = Joi.object({
@@ -38,6 +45,10 @@ const loginSchema = Joi.object({
   //   email: Joi.string().pattern(регулярний вираз з шаблоном).required(),
 });
 
+const verifySchema = Joi.object({
+  email: Joi.string(),
+});
+
 const User = model("user", userSchema);
 
-module.exports = { User, registerSchema, loginSchema };
+module.exports = { User, registerSchema, loginSchema, verifySchema };
